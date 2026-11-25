@@ -5,6 +5,9 @@
 CivicPulse takes separate city signals (rainfall, traffic slowdowns, road incidents), works out which
 belong to the same event in space and time, and gives an operator a ranked, explained hypothesis.
 
+**Live project:** <https://civicpulse-seven-vert.vercel.app> ([API docs](https://civicpulse-seven-vert.vercel.app/docs)).
+Choose **Load one event** to start.
+
 ## Problem statement
 
 Cities produce signals all the time, but weather, traffic and incident reports are usually viewed in
@@ -35,7 +38,7 @@ hypothesis **and** the reason each other signal was left out.
 - Live rainfall is a weather model value, not a rain gauge reading. **No live traffic feed is connected**;
   live traffic and incidents come from reports.
 - The score is an engineering score (maximum 95%), not a probability and not machine learning.
-- There is no sign-in, so run it locally or behind your own access control.
+- There is no sign-in. Everyone using the hosted site shares the same data and can change it.
 - Each analysis covers the newest 500 signals from the last 24 hours.
 - Not built yet: anomaly detection, GIS/infrastructure context (PostGIS), historical pattern analysis.
 
@@ -67,6 +70,7 @@ The "one event" demo has 9 signals: 8 aligned, 1 excluded, 28 aligned pairs, sco
 | Map | Leaflet, OpenStreetMap |
 | Backend | Python, FastAPI |
 | Database | PostgreSQL, SQLAlchemy |
+| Hosting | Vercel, with Neon PostgreSQL |
 | Live weather | [Open-Meteo](https://open-meteo.com/) (no API key) |
 | Tests | pytest |
 
@@ -115,6 +119,11 @@ Tests use a separate temporary database:
 cd backend
 .venv\Scripts\python -m pytest
 ```
+
+## Deployment
+
+`vercel.json` deploys the dashboard and API as one Vercel project. It needs a PostgreSQL `DATABASE_URL`
+(Neon, from the Vercel Marketplace). Pushes to `main` deploy automatically.
 
 ## Project architecture
 
