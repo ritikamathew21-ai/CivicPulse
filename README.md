@@ -72,20 +72,21 @@ The "one event" demo has 9 signals: 8 aligned, 1 excluded, 28 aligned pairs, sco
 
 ## Installation and setup
 
-Needs Python 3.12 and Node.js 22 or newer. PostgreSQL does not have to be installed: the development
+Needs **Python 3.11 or 3.12** and Node.js 22 or newer. Python 3.13+ does not work, because the
+bundled PostgreSQL package has no build for it. PostgreSQL itself does not have to be installed: the development
 requirements include its binaries, and data is kept in `.civicpulse` in your home folder.
 
 Windows (PowerShell):
 
 ```powershell
 cd backend
-python -m venv .venv
+py -3.12 -m venv .venv
 .venv\Scripts\python -m pip install -r requirements-dev.txt
 cd ../frontend
 npm install
 ```
 
-On macOS or Linux, use `.venv/bin/python` instead of `.venv\Scripts\python`.
+On macOS or Linux, use `python3.12 -m venv .venv`, then `.venv/bin/python` instead of `.venv\Scripts\python`.
 
 To use your own PostgreSQL, set `DATABASE_URL=postgresql://user:password@host:5432/dbname`.
 
