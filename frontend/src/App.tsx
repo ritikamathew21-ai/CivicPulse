@@ -131,6 +131,9 @@ export default function App() {
                 <li key={type}><span className={`pin ${type}`}>{t.letter}</span>{t.label}</li>
               ))}
               <li><span className="pin excluded">–</span>Excluded</li>
+              {selected && selected.assets.length > 0 && (
+                <li><span className="pin asset">+</span>H hospital, F fire, S station, M major road</li>
+              )}
             </ul>
           </div>
         </div>

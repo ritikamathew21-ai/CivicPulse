@@ -22,6 +22,14 @@ export interface Evidence {
   detail: string
 }
 
+export interface Asset {
+  kind: string
+  name: string
+  distance_m: number
+  lat: number
+  lon: number
+}
+
 export interface Hypothesis {
   id: string
   title: string
@@ -33,6 +41,9 @@ export interface Hypothesis {
   signal_ids: number[]
   aligned_pairs: number
   evidence: Evidence[]
+  assets: Asset[]
+  rain_anomaly: 'unusual' | 'extreme' | null
+  priority: { level: 'high' | 'medium' | 'low'; value: number; reasons: string[] }
   status: AlertStatus
   new_signals: number
 }

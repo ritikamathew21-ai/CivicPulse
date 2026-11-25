@@ -5,7 +5,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from . import demo, weather
+from . import context, demo, weather
 from .config import settings
 from .models import AlertDecision, Signal
 from .reasoning import Hypothesis, Observation, SignalType, analyse
@@ -13,10 +13,12 @@ from .schemas import (
     AlertStatus,
     AnalysedSignal,
     AnalysisOut,
+    AssetOut,
     Dataset,
     DecisionIn,
     EvidenceOut,
     HypothesisOut,
+    PriorityOut,
     SignalIn,
     SignalOut,
     Stats,
@@ -72,7 +74,10 @@ def run_analysis(
             )
             for s in signals
         ],
-        hypotheses=[_to_out(h, decisions) for h in result.hypotheses],
+        hypotheses=sorted(
+            (_to_out(h, decisions) for h in result.hypotheses),
+            key=lambda h: -h.priority.value,
+        ),
     )
 
 
@@ -80,6 +85,8 @@ def _to_out(hyp: Hypothesis, decisions: Sequence[AlertDecision]) -> HypothesisOu
     ids = {m.id for m in hyp.members}
     # Membership changes as signals arrive, so a decision follows its signals, not an event id
     latest = next((d for d in decisions if ids & set(d.signal_ids)), None)
+    assets = context.nearby_assets(hyp.anchor.lat, hyp.anchor.lon)
+    anomaly = context.strongest_anomaly(hyp)
     times = [m.observed_at for m in hyp.members]
     return HypothesisOut(
         id=hyp.id,
@@ -92,6 +99,9 @@ def _to_out(hyp: Hypothesis, decisions: Sequence[AlertDecision]) -> HypothesisOu
         signal_ids=sorted(ids),
         aligned_pairs=hyp.aligned_pairs,
         evidence=[EvidenceOut(**vars(e)) for e in hyp.evidence],
+        assets=[AssetOut(**vars(a)) for a in assets],
+        rain_anomaly=anomaly.level if anomaly else None,
+        priority=PriorityOut(**vars(context.priority(hyp.score, assets, anomaly))),
         status=AlertStatus(latest.status) if latest else AlertStatus.NEW,
         new_signals=len(ids - set(latest.signal_ids)) if latest else 0,
     )

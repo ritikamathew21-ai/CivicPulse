@@ -13,6 +13,13 @@ interface Props {
   onPick: (place: Place) => void
 }
 
+const ASSET_LETTER: Record<string, string> = {
+  hospital: 'H',
+  'fire station': 'F',
+  'railway station': 'S',
+  'major road': 'M',
+}
+
 const MUMBAI: L.LatLngTuple = [19.05, 72.86]
 
 export function SignalMap({ analysis, selected, picking, picked, onPick }: Props) {
@@ -52,6 +59,15 @@ export function SignalMap({ analysis, selected, picking, picked, onPick }: Props
               pathOptions={{ color: '#34d399', weight: 1.5, dashArray: '3 5' }}
             />
           ))}
+      {selected?.assets.map((a) => (
+        <Marker key={a.kind} position={[a.lat, a.lon]} icon={pin('asset', ASSET_LETTER[a.kind] ?? '?')} alt={`${a.kind}: ${a.name}`}>
+          <Popup>
+            <strong>{a.name}</strong>
+            <br />
+            {a.kind}, {a.distance_m} m from the event anchor
+          </Popup>
+        </Marker>
+      ))}
       {analysis?.signals.map((s) => {
         const { label, letter, unit } = TYPES[s.type]
         const excluded = s.hypothesis_id === null

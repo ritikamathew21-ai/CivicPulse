@@ -25,7 +25,11 @@ hypothesis **and** the reason each other signal was left out.
 - **Alignment** with an adjustable radius (default 1 km) and time window (default 15 min).
 - **Deterministic reasoning**: the same signals always give the same result.
 - **Explanations for every signal**, aligned or excluded.
-- **Ranked hypotheses** when several events happen at once.
+- **Infrastructure context**: the nearest hospital, fire station, railway station and major road within
+  500 m of an event, from OpenStreetMap.
+- **Rainfall anomaly detection**: flags rain that is unusual for that place and month, compared with ten
+  years of hourly history.
+- **Ranked hypotheses** when several events happen at once, ordered by priority.
 - **Operator alerts**: acknowledge, resolve, reopen. An alert keeps its status as its event grows, and
   shows how many signals arrived since the last decision.
 - **Interactive map**: select an insight to highlight its signals and fade the rest.
@@ -40,7 +44,10 @@ hypothesis **and** the reason each other signal was left out.
 - The score is an engineering score (maximum 95%), not a probability and not machine learning.
 - There is no sign-in. Everyone using the hosted site shares the same data and can change it.
 - Each analysis covers the newest 500 signals from the last 24 hours.
-- Not built yet: anomaly detection, GIS/infrastructure context (PostGIS), historical pattern analysis.
+- Rain history is gridded hourly data, so comparing it with a point reading is approximate. A fixed
+  percentile test is used, not machine learning. Traffic and incidents have no history, so no anomaly check.
+- Infrastructure is a bundled OpenStreetMap snapshot, and may be incomplete.
+- Not built yet: PostGIS, live traffic, historical pattern analysis, response workflows.
 
 ## How the reasoning works
 
@@ -59,6 +66,13 @@ hypothesis **and** the reason each other signal was left out.
 | Road incident present | 0.20 |
 | Spatial alignment | 0.10 × share of pairs within the radius |
 | Temporal alignment | 0.10 × share of pairs within the window |
+
+### Priority
+
+Priority decides the order operators see. It starts from the score and **never changes it**: +0.05 for each
+kind of infrastructure nearby, +0.05 for unusual rain (above 99% of that month's hours in 2016–2025) or
++0.10 for extreme rain (above 99.9%). High is 1.00 or more, medium 0.75 or more. These values are design
+choices, not learned from data.
 
 The "one event" demo has 9 signals: 8 aligned, 1 excluded, 28 aligned pairs, score 95%. A test checks this.
 
@@ -133,8 +147,9 @@ flowchart LR
   W[Open-Meteo rainfall] --> API
   O[Operator reports] --> API
   API[FastAPI] <--> DB[(PostgreSQL)]
-  API --> A[Space + time alignment] --> R[Cross-signal scoring] --> H[Explained hypotheses]
-  H --> UI[React + Leaflet dashboard]
+  C[OpenStreetMap + rainfall history] --> P
+  API --> A[Space + time alignment] --> R[Cross-signal scoring] --> H[Explained hypotheses] --> P[Priority]
+  P --> UI[React + Leaflet dashboard]
   UI -- decisions --> API
 ```
 
@@ -143,6 +158,8 @@ flowchart LR
 | `backend/app/reasoning.py` | Alignment, grouping, scoring, explanations (pure functions) |
 | `backend/app/service.py` | Database reads and writes around the engine |
 | `backend/app/main.py`, `schemas.py` | API routes and input validation |
+| `backend/app/context.py`, `data/` | Infrastructure, rainfall history and priority |
+| `backend/scripts/build_context.py` | Rebuilds the files in `data/` |
 | `backend/app/weather.py` | Open-Meteo client |
 | `backend/app/demo.py` | Simulated scenarios |
 | `backend/app/dev_db.py` | Local PostgreSQL for development |
@@ -161,4 +178,5 @@ Team **Nexora** (solo participant)
 
 Built during BUiLDX 2026 with Claude Code (Anthropic) as an AI coding assistant, under the event's AI
 Tools Policy. No earlier project code was reused. Third-party libraries are listed in
-`backend/requirements.txt` and `frontend/package.json`. Map data © OpenStreetMap contributors.
+`backend/requirements.txt` and `frontend/package.json`. Map and infrastructure data © OpenStreetMap contributors, available under the
+[ODbL](https://www.openstreetmap.org/copyright). Weather data by Open-Meteo.com (CC BY 4.0).

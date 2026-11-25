@@ -71,6 +71,20 @@ class EvidenceOut(BaseModel):
     detail: str
 
 
+class AssetOut(BaseModel):
+    kind: str
+    name: str
+    distance_m: int
+    lat: float
+    lon: float
+
+
+class PriorityOut(BaseModel):
+    level: str
+    value: float
+    reasons: list[str]
+
+
 class HypothesisOut(BaseModel):
     id: str
     title: str
@@ -82,6 +96,9 @@ class HypothesisOut(BaseModel):
     signal_ids: list[int]
     aligned_pairs: int
     evidence: list[EvidenceOut]
+    assets: list[AssetOut]
+    rain_anomaly: str | None
+    priority: PriorityOut
     status: AlertStatus
     new_signals: int = Field(description="Signals added since the last operator decision")
 

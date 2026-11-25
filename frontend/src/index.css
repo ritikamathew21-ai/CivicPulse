@@ -61,6 +61,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 12px; al
 .pin.rainfall { background: var(--cyan); }
 .pin.traffic { background: var(--blue); }
 .pin.incident { background: var(--red); }
+.pin.asset { background: #fde68a; border-radius: 6px; }
 .pin.picked { background: #fde68a; }
 .pin.excluded { background: #1b2740; color: var(--dim); border: 2px dashed var(--dim); }
 .pin.faded { opacity: .25; }
@@ -73,9 +74,13 @@ aside, .insights, .card-body, .report { display: grid; gap: 10px; }
   display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center;
 }
 .card-head .title { font-weight: 600; }
-.score { font-size: 1.6rem; font-weight: 700; color: var(--cyan); }
+.score { justify-self: end; font-size: 1.6rem; font-weight: 700; color: var(--cyan); }
 .rank { color: var(--dim); text-align: right; }
 .meta { grid-column: 1 / -1; font-size: .85rem; }
+.priority { font-size: .78rem; text-transform: capitalize; }
+.priority.high { color: var(--red); }
+.priority.medium { color: #fcd34d; }
+.reasons { margin: 0; padding-left: 18px; font-size: .85rem; overflow-wrap: anywhere; }
 .status { justify-self: start; font-size: .78rem; padding: 1px 8px; border-radius: 6px; border: 1px solid; }
 .status.new { color: var(--red); }
 .status.acknowledged { color: #fcd34d; }

@@ -29,7 +29,9 @@ export function InsightPanel({ hypotheses, selectedId, busy, onSelect, onDecide 
           <article key={h.id} className={open ? 'card open' : 'card'}>
             <button className="card-head" aria-expanded={open} onClick={() => onSelect(open ? null : h.id)}>
               <span className={`status ${h.status}`}>{STATUS_LABEL[h.status]}</span>
-              <span className="rank">#{index + 1}</span>
+              <span className="rank">
+                #{index + 1} <b className={`priority ${h.priority.level}`}>{h.priority.level} priority</b>
+              </span>
               <span className="title">{h.title}</span>
               <span className="score">{percent(h.score)}</span>
               <span className="meta">
@@ -37,6 +39,7 @@ export function InsightPanel({ hypotheses, selectedId, busy, onSelect, onDecide 
                 {clock(h.ended_at)}
               </span>
             </button>
+            {h.rain_anomaly && <p className="fresh">Rainfall is {h.rain_anomaly} for this month</p>}
             {h.new_signals > 0 && (
               <p className="fresh">
                 +{h.new_signals} new since this alert was {h.status === 'new' ? 'reopened' : h.status}
@@ -57,6 +60,14 @@ export function InsightPanel({ hypotheses, selectedId, busy, onSelect, onDecide 
                 </ul>
                 <p className="note">
                   Engineering score out of a maximum of 95%. It is not a probability or a machine-learning output.
+                </p>
+                <h3>Why {h.priority.level} priority ({h.priority.value.toFixed(2)})</h3>
+                <ul className="reasons">
+                  {h.priority.reasons.map((r) => <li key={r}>{r}</li>)}
+                </ul>
+                <p className="note">
+                  Priority adds context to the score: OpenStreetMap infrastructure within 500 m, and rain compared
+                  with gridded hourly history from Open-Meteo. It does not change the score.
                 </p>
                 <div className="actions">
                   {h.status !== 'acknowledged' && h.status !== 'resolved' && (

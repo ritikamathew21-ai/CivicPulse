@@ -34,7 +34,10 @@ def test_single_demo_matches_the_deck(client):
 def test_multi_demo_is_ranked(client):
     client.post("/api/demo/multi")
     data = get(client)
-    assert [h["score"] for h in data["hypotheses"]] == [0.95, 0.7, 0.65]
+    assert sorted((h["score"] for h in data["hypotheses"]), reverse=True) == [0.95, 0.7, 0.65]
+    priorities = [h["priority"]["value"] for h in data["hypotheses"]]
+    assert priorities == sorted(priorities, reverse=True)
+    assert all(h["priority"]["value"] >= h["score"] for h in data["hypotheses"])
     assert data["stats"]["excluded"] == 3
 
 
