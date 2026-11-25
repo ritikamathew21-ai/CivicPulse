@@ -142,11 +142,11 @@ flowchart LR
 
 ## Team members and contributions
 
-<!-- TODO before submission: every member's real name and what they did -->
+Team **Nexora** (solo participant)
 
 | Member | Contribution |
 |---|---|
-| | |
+| Ritika Mathew | Project concept and proposal, scope and product decisions, and development with Claude Code as the AI coding assistant |
 
 ## AI tools and third-party work
 
