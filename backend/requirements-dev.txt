@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==9.2.0
+# PostgreSQL binaries, so local development needs no database install
+pgserver==0.1.4
